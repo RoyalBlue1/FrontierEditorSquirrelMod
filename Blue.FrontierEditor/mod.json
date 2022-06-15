@@ -1,0 +1,37 @@
+{
+	"Name" : "FrontierEditor",
+	"Description": "Works in connection with external Application to make Frontier Defense Games",
+	"Version": "1.0.0",
+	"LoadPriority": 2,
+	"RequiredOnClient": true,
+
+	"Scripts": [
+		{
+			"Path": "gamemodes/sh_gamemode_editor.nut",
+			"RunOn": "( CLIENT || SERVER ) && MP",
+			"ClientCallback": {
+				"Before": "Sh_GamemodeEditor_Init"
+			},
+
+			"ServerCallback": {
+				"Before": "Sh_GamemodeEditor_Init"
+			}
+		},
+		{
+			"Path": "gamemodes/_gamemode_editor.nut",
+			"RunOn": "SERVER && MP"
+		},
+        {
+			"Path": "gamemodes/cl_gamemode_editor.nut",
+			"RunOn": "CLIENT && MP"
+		},
+		{
+			"Path": "weapons/mp_weapon_toolgun.nut",
+			"RunOn": "( CLIENT || SERVER ) && MP"
+		}
+	],
+
+	"Localisation": [
+		"resource/editor_custom_%language%.txt"
+	]
+}

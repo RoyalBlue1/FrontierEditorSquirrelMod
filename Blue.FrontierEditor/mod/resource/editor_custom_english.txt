@@ -1,0 +1,12 @@
+"lang"
+{
+	"Language" "english"
+	"Tokens"
+	{
+		"PL_editor" "Frontier Editor"
+		"PL_editor_lobby" "Frontier Editor Lobby"
+		"PL_editor_desc" ""
+		"PL_editor_abbr" "EDITOR"
+		"GAMEMODE_EDITOR" "Frontier Editor"
+	}
+}
