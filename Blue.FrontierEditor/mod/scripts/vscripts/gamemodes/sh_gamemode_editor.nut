@@ -7,6 +7,8 @@ void function Sh_GamemodeEditor_Init()
 	// create custom gamemode
 	AddCallback_OnCustomGamemodesInit( CreateGamemodeEditor )
 	AddCallback_OnRegisteringCustomNetworkVars( EditorRegisterNetworkVars )
+	PrecacheWeapon( "mp_weapon_toolgun" )
+	PrecacheWeapon( "mp_ability_toolability" )
 }
 
 void function CreateGamemodeEditor()

@@ -4,7 +4,7 @@ playlists
 	{
 		editor
 		{
-			inherit fd
+			inherit defaults
 			vars
 			{
 				name #PL_editor
@@ -22,6 +22,8 @@ playlists
 				boost_store_mode off
 				skyshow_enabled 0
 				spawn_zone_enabled 0
+				respawn_delay 0
+				
 			}
 		}
     	}
@@ -29,7 +31,7 @@ playlists
 	{
 		editor
 		{
-			inherit fd
+			inherit defaults
 			vars
 			{
 				name #PL_editor

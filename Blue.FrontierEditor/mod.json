@@ -27,7 +27,23 @@
 		},
 		{
 			"Path": "weapons/mp_weapon_toolgun.nut",
-			"RunOn": "( CLIENT || SERVER ) && MP"
+			"RunOn": "( CLIENT || SERVER ) && MP",
+			"ServerCallback": {
+				"After": "ToolGun_Init"
+			},
+			"ClientCallback": {
+				"After": "ToolGun_Init"
+			}
+		},
+		{
+			"Path": "weapons/mp_weapon_toolability.nut",
+			"RunOn": "( CLIENT || SERVER ) && MP",
+			"ServerCallback": {
+				"Before": "ToolAbility_Init"
+			},
+			"ClientCallback": {
+				"Before": "ToolAbility_Init"
+			}
 		}
 	],
 

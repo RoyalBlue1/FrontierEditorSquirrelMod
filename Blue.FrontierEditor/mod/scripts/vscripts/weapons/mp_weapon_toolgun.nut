@@ -15,7 +15,7 @@ global function OnWeaponStartZoomOut_weapon_toolgun
 #if SERVER
 global function OnWeaponNpcPrimaryAttack_weapon_toolgun
 #endif
-
+global function ToolGun_init
 
 
 
@@ -32,7 +32,9 @@ struct {
 
 
 
-
+void function ToolGun_init(){
+	
+}
 
 void function SetCallback_Toolgun_OnWeaponActivate(void functionref(entity weapon) func)
 {
@@ -90,7 +92,8 @@ void function OnWeaponStartZoomOut_weapon_toolgun( entity weapon )
 
 var function OnWeaponNpcPrimaryAttack_weapon_toolgun( entity weapon, WeaponPrimaryAttackParams attackParams )
 {
-	// do nothing for now, maybe make it launch nukes or something later that could be funny
+	// do nothing for now, maybe make it launch nukes or something later that could be funny << a very bob comment
+	
 } 
 
 

@@ -16,7 +16,7 @@ struct line{
 }
 
 struct{
-	table<int,line> lines
+	table<string,line> lines
 	table<string,array<void functionref(table data)> > readMessageCallbacks
 }file
 
@@ -24,10 +24,11 @@ void function GamemodeEditor_Init()
 {
 	PrecacheModel( MODEL_ATTRITION_BANK )
 	
-	//NSInitSocket(9999)
-	//thread readSocket()
+	NSInitSocket(9999)
+	thread readSocket()
 	
-	//thread renderStuff()
+	thread renderStuff()
+	AddCallback_GameStateEnter(eGameState.Playing,Editor_GameStarted)
 	SetConVarInt("sv_cheats",1)
 	SetConVarInt("enable_debug_overlays",1)
 	addReadMessageCallback("line",createLine)
@@ -36,83 +37,101 @@ void function GamemodeEditor_Init()
 	Riff_ForceBoostAvailability( eBoostAvailability.Disabled )
 	Riff_ForceTitanAvailability( eTitanAvailability.Never )
 	PlayerEarnMeter_SetEnabled(false)
+	SetTimerBased(false)
 }
 
-void function playerRespawnedEditor(entity player){
 
-	TakeAllWeapons(player)
-	player.GiveWeapon("mp_weapon_toolgun")
+void function Editor_GameStarted()
+{
+	print("OUT OF BOUNDS DISABLED")
+	if("disableOutOfBounds" in level)
+		level.disableOutOfBounds = true
+	else
+		level.disableOutOfBounds <- true
+
+	
 }
 
-void function createLine(table data){
-	array<string> usedKeys= ["startX","startY","startZ","endX","endY","endZ","red","green","blue","isObstructed","lineId"]
-	foreach(string u in usedKeys)
+void function playerRespawnedEditor(entity player)
+{
+
+		TakeAllWeapons(player)
+		player.GiveWeapon("mp_weapon_toolgun")
+		player.GiveOffhandWeapon("mp_ability_toolability",OFFHAND_LEFT)
+}
+
+void function createLine(table data)
+{
+	if(networkJsonContainsKeys(data,["startX","startY","startZ","endX","endY","endZ","red","green","blue","isObstructed","lineKey"]))
 	{
-		if(!(u in data))
+		line l
+		l.begin = < string(data["startX"]).tofloat(), string(data["startY"]).tofloat(), string(data["startZ"]).tofloat()>
+		l.end = < string(data["endX"]).tofloat(), string(data["endY"]).tofloat(), string(data["endZ"]).tofloat()>
+		l.red = string(data["red"]).tointeger()
+		l.green = string(data["green"]).tointeger()
+		l.blue = string(data["blue"]).tointeger()
+		l.isObstructed = (string(data["isObstructed"])=="true")
+		file.lines[string(data["lineKey"])] <- l
+		printt("added line",string(data["lineKey"]))
+	}
+
+}
+
+void function deleteLine(table data)
+{
+	if(networkJsonContainsKeys(data,["lineKey"]))
+		delete file.lines[string(data["lineKey"])]
+	
+}
+
+void function readSocket()
+{
+	while(true)
+	{
+		string message = NSReadSocketMessage()
+		while(message!="")
 		{
-			printt("Key missing: ",u)
-			//NSSendSocketMessage("{\"type\":\"error\",\"errorType\":\"missingKey\",\"key\":\""+u+"\"}")
-			return
-		}
-	}
-	line l
-	l.begin = < string(data["startX"]).tofloat(), string(data["startY"]).tofloat(), string(data["startZ"]).tofloat()>
-	l.end = < string(data["endX"]).tofloat(), string(data["endY"]).tofloat(), string(data["endZ"]).tofloat()>
-	l.red = string(data["red"]).tointeger()
-	l.green = string(data["green"]).tointeger()
-	l.blue = string(data["blue"]).tointeger()
-	l.isObstructed = (string(data["isObstructed"])=="true")
-	file.lines[string(data["lineId"]).tointeger()] <- l
-	printt("added line",string(data["lineId"]))
-}
-
-void function deleteLine(table data){
-	if(!("lineId")in data){
-		printt("Key missing: lineId")
-		//NSSendSocketMessage("{\"type\":\"error\",\"errorType\":\"missingKey\",\"key\":\"lineId\"}")
-		return
-	}
-	
-	delete file.lines[string(data["lineId"]).tointeger()]
-	
-}
-
-void function readSocket(){
-	while(true){
-		string message = ""//NSReadSocketMessage()
-		while(message!=""){
 			printt(message)
 			table data = DecodeJSON(message)
-			if("type" in data){
+			if("type" in data)
+			{
 				if(string(data["type"]) in file.readMessageCallbacks)
 					foreach(void functionref(table data) func in file.readMessageCallbacks[string(data["type"])])
 						func(data)
-			}else{
+			}
+			else
+			{
 				printt("decode no worky")
 			}
-			//message = NSReadSocketMessage()
+			message = NSReadSocketMessage()
 		}
 		WaitFrame()
 	}
 }
 
-void function sendSocket(table data){
-	//NSSendSocketMessage(EncodeJSON(data))
+void function sendTableSocket(table data)
+{
+	NSSendSocketMessage(EncodeJSON(data))
 }
 
 
-const float renderDelay  =3
-void function renderStuff(){
+const float renderDelay = 3
+
+void function renderStuff()
+{
 	float lastTime = Time()
 	wait renderDelay
-	while(true){
+	while(true)
+	{
 		float currentTime = Time()
 		float deltaTime = currentTime -lastTime
 		float lastTime = currentTime
-
-		foreach(int index,line l in file.lines){
+		int index
+		foreach(string key,line l in file.lines){
 			DebugDrawLine(l.begin, l.end,l.red, l.green, l.blue,l.isObstructed,deltaTime)
-			if(index%100==99)wait 0.2
+			if(index%100==99)
+				wait 0.2
+			index++
 		}
 
 		wait renderDelay
@@ -136,3 +155,24 @@ void function removeReadMessageCallback(string type,void functionref(table data)
 	file.readMessageCallbacks[type].fastremovebyvalue(callbackFunk)
 }
 
+void function selectModelForToolgun(table data)
+{
+	if(networkJsonContainsKeys(data,["model"]))
+	{
+		
+	}
+}
+
+bool function networkJsonContainsKeys(table data,array<string> keys)
+{
+	foreach(string u in keys)
+	{
+		if(!(u in data))
+		{
+			printt("Key missing: ",u)
+			NSSendSocketMessage("{\"type\":\"error\",\"errorType\":\"missingKey\",\"key\":\""+u+"\"}")
+			return false
+		}
+	}
+	return true
+}
